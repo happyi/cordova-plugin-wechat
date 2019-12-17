@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+
 import org.apache.cordova.CordovaPreferences;
 
 public class Wechat extends CordovaPlugin {
@@ -119,7 +120,7 @@ public class Wechat extends CordovaPlugin {
 
     protected void initWXAPI() {
         IWXAPI api = getWxAPI(cordova.getActivity());
-        if(wx_preferences == null) {
+        if (wx_preferences == null) {
             wx_preferences = preferences;
         }
         if (api != null) {
@@ -129,6 +130,7 @@ public class Wechat extends CordovaPlugin {
 
     /**
      * Get weixin api
+     *
      * @param ctx
      * @return
      */
@@ -156,7 +158,7 @@ public class Wechat extends CordovaPlugin {
             return sendPaymentRequest(args, callbackContext);
         } else if (action.equals("isWXAppInstalled")) {
             return isInstalled(callbackContext);
-        }else if (action.equals("chooseInvoiceFromWX")){
+        } else if (action.equals("chooseInvoiceFromWX")) {
             return chooseInvoiceFromWX(args, callbackContext);
         }
 
@@ -320,50 +322,50 @@ public class Wechat extends CordovaPlugin {
         return true;
     }
 
-   protected boolean chooseInvoiceFromWX(CordovaArgs args, CallbackContext callbackContext) {
+    protected boolean chooseInvoiceFromWX(CordovaArgs args, CallbackContext callbackContext) {
 
-               final IWXAPI api = getWxAPI(cordova.getActivity());
+        final IWXAPI api = getWxAPI(cordova.getActivity());
 
-               // check if # of arguments is correct
-               final JSONObject params;
-               try {
-                   params = args.getJSONObject(0);
-               } catch (JSONException e) {
-                   callbackContext.error(ERROR_INVALID_PARAMETERS);
-                   return true;
-               }
+        // check if # of arguments is correct
+        final JSONObject params;
+        try {
+            params = args.getJSONObject(0);
+        } catch (JSONException e) {
+            callbackContext.error(ERROR_INVALID_PARAMETERS);
+            return true;
+        }
 
-               ChooseCardFromWXCardPackage.Req req = new ChooseCardFromWXCardPackage.Req();
+        ChooseCardFromWXCardPackage.Req req = new ChooseCardFromWXCardPackage.Req();
 
-               try {
-                   req.appId = getAppId(preferences);
-                   req.cardType = "INVOICE";
-                   req.signType = params.getString("signType");
-                   req.cardSign = params.getString("cardSign");
-                   req.nonceStr = params.getString("nonceStr");
-                   req.timeStamp = params.getString("timeStamp");
-                   req.canMultiSelect = "1";
-               } catch (Exception e) {
-                   Log.e(TAG, e.getMessage());
+        try {
+            req.appId = getAppId(preferences);
+            req.cardType = "INVOICE";
+            req.signType = params.getString("signType");
+            req.cardSign = params.getString("cardSign");
+            req.nonceStr = params.getString("nonceStr");
+            req.timeStamp = params.getString("timeStamp");
+            req.canMultiSelect = "1";
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
 
-                   callbackContext.error(ERROR_INVALID_PARAMETERS);
-                   return true;
-               }
+            callbackContext.error(ERROR_INVALID_PARAMETERS);
+            return true;
+        }
 
-               if (api.sendReq(req)) {
-                   Log.i(TAG, "Invoice request has been sent successfully.");
+        if (api.sendReq(req)) {
+            Log.i(TAG, "Invoice request has been sent successfully.");
 
-                   // send no result
-                   sendNoResultPluginResult(callbackContext);
-               } else {
-                   Log.i(TAG, "Invoice request has been sent unsuccessfully.");
+            // send no result
+            sendNoResultPluginResult(callbackContext);
+        } else {
+            Log.i(TAG, "Invoice request has been sent unsuccessfully.");
 
-                   // send error
-                   callbackContext.error(ERROR_SEND_REQUEST_FAILED);
-               }
+            // send error
+            callbackContext.error(ERROR_SEND_REQUEST_FAILED);
+        }
 
-               return true;
-           }
+        return true;
+    }
 
     protected boolean isInstalled(CallbackContext callbackContext) {
         final IWXAPI api = getWxAPI(cordova.getActivity());
@@ -522,8 +524,8 @@ public class Wechat extends CordovaPlugin {
 
                 int length = scaled.getRowBytes() * scaled.getHeight();
 
-                if(length > (maxSize/10)*1024) {
-                    scaled = compressImage(scaled,(maxSize/10));
+                if (length > (maxSize / 10) * 1024) {
+                    scaled = compressImage(scaled, (maxSize / 10));
                 }
 
                 bmp = scaled;
@@ -546,14 +548,14 @@ public class Wechat extends CordovaPlugin {
     /**
      * compress bitmap by quility
      */
-    protected  Bitmap compressImage(Bitmap image,Integer maxSize) {
+    protected Bitmap compressImage(Bitmap image, Integer maxSize) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         int options = 90;
 
-        while (baos.toByteArray().length / 1024 > maxSize) { 
-            baos.reset(); 
+        while (baos.toByteArray().length / 1024 > maxSize) {
+            baos.reset();
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);
             options -= 10;
         }
@@ -626,9 +628,9 @@ public class Wechat extends CordovaPlugin {
 
     public static String getAppId(CordovaPreferences f_preferences) {
         if (appId == null) {
-            if(f_preferences != null) {
+            if (f_preferences != null) {
                 appId = f_preferences.getString(WXAPPID_PROPERTY_KEY, "");
-            }else if(wx_preferences != null){
+            } else if (wx_preferences != null) {
                 appId = wx_preferences.getString(WXAPPID_PROPERTY_KEY, "");
             }
         }
@@ -638,6 +640,7 @@ public class Wechat extends CordovaPlugin {
 
     /**
      * Get saved app id
+     *
      * @param ctx
      * @return
      */
@@ -648,12 +651,13 @@ public class Wechat extends CordovaPlugin {
 
     /**
      * Save app id into SharedPreferences
+     *
      * @param ctx
      * @param id
      */
     public static void saveAppId(Context ctx, String id) {
-        if (id!=null && id.isEmpty()) {
-            return ;
+        if (id != null && id.isEmpty()) {
+            return;
         }
 
         SharedPreferences settings = ctx.getSharedPreferences(PREFS_NAME, 0);
